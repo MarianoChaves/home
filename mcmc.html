@@ -72,7 +72,7 @@
                             <p>In order to use the MCMC, you should compile the program using the <b>make</b> command in the gnu terminal. 
                                 Once you have compiled the program, you are able to use it in any program. </p>
                             <p>To user the MCMC sampling in another program you should use the flag <b>-lnu</b>. Inside the program you should refer to the location of the file using <i>#include "<b>(the path goes here)</b>/nu.h"</i>. </p>
-                            <h3 class="mb-0">Theory of MCMC</h3>
+                            <h3 class="mb-0">Understanding the MCMC</h3>
                             <p>The MCMC sampling is an algorithm that has as goal sampling some probability distribution \(p(\vec{x})\), where \(\vec{x}\) is an N-dimensional vector. The advantage of using affine invariant MCMC is that you don't need to have a prior acknowledgement of the distribution for all the variables. 
                                 There are three main rules when running MCMC:
                                 <ul>
@@ -84,7 +84,7 @@
                             <p>In the algorithm, we consider two elements: walkers and ensembles of walkers. A walker is a vector in the N-dimensional space that stores one sampling story. An ensemble is a set of walkers.
                                 In the beginning, you choose an ensemble of walkers with randomly organized initial positions.</p>
                             <p>Let's use as example, the function </p>
-                            <p style="text-align: center;">\(-2\log \left[p(\vec{x})\right]=\sum_i \frac{(x_i-c_i)^2}{\sigma^2_i}-\frac{(x_0-c_0)(x_1-c_1)}{\sigma_0\sigma_1}-\frac{(x_2-c_2)(x_1-c_1)}{\sigma_2\sigma_1},\)</p>
+                            <p style="text-align: center;">\(-\frac{1}{2}\log \left[p(\vec{x})\right]=\sum_i \frac{(x_i-c_i)^2}{\sigma^2_i}-\frac{(x_0-c_0)(x_1-c_1)}{\sigma_0\sigma_1}-\frac{(x_2-c_2)(x_1-c_1)}{\sigma_2\sigma_1},\)</p>
                             <p>where \(c_0=50\), \(c_0=1\), \(c_0=20\), \(\sigma_0=1\), \(\sigma_1=1\) and \(\sigma_2=20\).</p>
                         </div>
                     </div>
@@ -99,56 +99,47 @@
                     <div class="d-flex flex-column flex-md-row justify-content-between mb-5">
                         <div class="flex-grow-1">
                             <h3 class="mb-0">The initial guess</h3>
-                            <p>The following code can be used to generate the initial guess in the file <b>guess.csv</b>:</p>
+                            <p>The following code can be used to generate the initial guess in the file <b>guess.csv</b>.</p>
                             <div class="subheading mb-3">The code</div>
-                            <script>hljs.highlightAll();</script>
+                            The C++ code:
                             <pre>
                                 <code class="language-c++">
-#include&#60;vector&#62; 
-#include "(path)/nu.h" 
-
-/*DEFINING OUR FUNCTION*/ 
-double loglike(std::vector&#60;double&#62; params){ 
-    double logL = 0; 
-    double mean[3] = {50,1,20}; 
-    double dev[3] = {1,1,20};     
-    for(int i = 0; i&#60;3; i++){ 
-        logL += (params[i]-mean[i])*(params[i]-mean[i])/(dev[i]*dev[i]); 
-    }; 
-    logL += -0.5*(params[0]-mean[0])*(params[1]-mean[1])/(dev[0]*dev[1]); 
-    logL += -0.5*(params[2]-mean[2])*(params[1]-mean[1])/(dev[2]*dev[1]); 
-
-    return -0.5*logL; 
-};
-
-int main(){ 
-    /*NU_MCMC RUNNING TESTS*/ 
-    srand(42); 
-    int nwalkers = 250; 
-    int ndim = 3; 
-    std::vector&#60; 
-    std::vector&#60;
-    double&#62; &#62; 
-    init_pos; 
-
-    /*INITIAL GUESS*/
-    for(int k = 0; k &#60; nwalkers; k++){ 
-        double p1 = double(rand()% 200+500)/10; 
-        double p2 = double(rand()% 100+1)/10; 
-        double p3 = double(rand()% 200+1)/10; 
-        std::vector&#60;double&#62; pos{p1,p2,p3}; 
-        init_pos.push_back(pos); 
-    } 
-    char file_name[256] = "guess.csv"; 
-
-    nu::Mcmc my_sample(nwalkers, ndim, init_pos); 
-    my_sample.run(loglike, 0); 
-    /*If you want to save a state */ 
-    my_sample.save_state(file_name); 
-}
+/*INITIAL GUESS*/
+std::vector&#60; std::vector&#60;double&#62; &#62; init_pos;
+for(int k = 0; k &#60; nwalkers; k++){ 
+    double p1 = double(rand()% 200+500)/10; 
+    double p2 = double(rand()% 100+1)/10; 
+    double p3 = double(rand()% 200+1)/10; 
+    std::vector&#60;double&#62; pos{p1,p2,p3}; 
+    init_pos.push_back(pos); 
+} 
+...
+nu::Mcmc my_sample(nwalkers, ndim, init_pos); /*CREACTE THE ENSEMBLE*/
+my_sample.save_state(file_name); /*SAVE THE PRESENT STATE OF THE ENSEMBLE*/ 
+...
                                 </code>
                             </pre>
+                            For the last code, if we assume \(250\) walkers we the results that are scattered on Fig. 1, and has can you see the points are scatterd uniformly around the chosen region.
+                            <figure style="text-align: center;">
+                                <img src="assets/img/example_0.png" alt="Trulli" style="width:50%">
+                                <figcaption>Fig.1 - Scattered initial guess.</figcaption>
+                              </figure>
                                     <h3 class="mb-0">Running</h3>
+                                    In order to get more points, we need to use the <i>run</i> method using more steps, for the fig. 2 we use 50 steps. We also emphasise that the function that should be passed to the method <i>run</i>, is \(-\frac{1}{2}\log(p) \). 
+                                    <pre>
+                                        <code class="language-c++">
+...
+my_sample.run(loglike, nsteps); 
+char header[256] = "x,y,z,walker\n"; 
+my_sample.save_chain_walker(file_sample_name,header);
+...                                        
+                                        </code>
+                                    </pre>
+                                    The save_chain_walker method saves the history of the walkers as a csv file whih the last column is the walker identifier given by an integer going from 1 to the number of walkers. In fig 2. we show the result of the output.
+                                    <figure style="text-align: center;">
+                                        <img src="assets/img/example_1.png" alt="Trulli" style="width:50%">
+                                        <figcaption>Fig.2 - Scattered history of the walkers.</figcaption>
+                                      </figure>
                             <div class="subheading mb-3">...</div>
                             <p>...</p>
                         </div>
