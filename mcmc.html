@@ -14,6 +14,12 @@
         <link href="https://fonts.googleapis.com/css?family=Muli:400,400i,800,800i" rel="stylesheet" type="text/css" />
         <!-- Core theme CSS (includes Bootstrap)-->
         <link href="css/styles.css" rel="stylesheet" />
+        <!--Code on page-->
+        <link href="css/prism.css" rel="stylesheet"/>
+        <script src="js/prism.js"></script>
+        <!--Max Jax-->
+        <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+        <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     </head>
     <body id="page-top">
         <!-- Navigation-->
@@ -62,9 +68,24 @@
                     <h2 class="mb-5">Basics</h2>
                     <div class="d-flex flex-column flex-md-row justify-content-between mb-5">
                         <div class="flex-grow-1">
-                            <h3 class="mb-0">Under construction</h3>
-                            <div class="subheading mb-3">...</div>
-                            <p>...</p>
+                            <h3 class="mb-0">Compiling and usage</h3>
+                            <p>In order to use the MCMC, you should compile the program using the <b>make</b> command in the gnu terminal. 
+                                Once you have compiled the program, you are able to use it in any program. </p>
+                            <p>To user the MCMC sampling in another program you should use the flag <b>-lnu</b>. Inside the program you should refer to the location of the file using <i>#include "<b>(the path goes here)</b>/nu.h"</i>. </p>
+                            <h3 class="mb-0">Theory of MCMC</h3>
+                            <p>The MCMC sampling is an algorithm that has as goal sampling some probability distribution \(p(\vec{x})\), where \(\vec{x}\) is an N-dimensional vector. The advantage of using affine invariant MCMC is that you don't need to have a prior acknowledgement of the distribution for all the variables. 
+                                There are three main rules when running MCMC:
+                                <ul>
+                                    <li>Choose your initial guess;</li>
+                                    <li>Ensure convergence;</li>
+                                    <li>Get as many samples as you need;</li>
+                                </ul>
+                            </p>
+                            <p>In the algorithm, we consider two elements: walkers and ensembles of walkers. A walker is a vector in the N-dimensional space that stores one sampling story. An ensemble is a set of walkers.
+                                In the beginning, you choose an ensemble of walkers with randomly organized initial positions.</p>
+                            <p>Let's use as example, the function </p>
+                            <p style="text-align: center;">\(-2\log \left[p(\vec{x})\right]=\sum_i \frac{(x_i-c_i)^2}{\sigma^2_i}-\frac{(x_0-c_0)(x_1-c_1)}{\sigma_0\sigma_1}-\frac{(x_2-c_2)(x_1-c_1)}{\sigma_2\sigma_1},\)</p>
+                            <p>where \(c_0=50\), \(c_0=1\), \(c_0=20\), \(\sigma_0=1\), \(\sigma_1=1\) and \(\sigma_2=20\).</p>
                         </div>
                     </div>
                 </div>
@@ -77,7 +98,57 @@
                     <h2 class="mb-5">Sampling</h2>
                     <div class="d-flex flex-column flex-md-row justify-content-between mb-5">
                         <div class="flex-grow-1">
-                            <h3 class="mb-0">Under construction</h3>
+                            <h3 class="mb-0">The initial guess</h3>
+                            <p>The following code can be used to generate the initial guess in the file <b>guess.csv</b>:</p>
+                            <div class="subheading mb-3">The code</div>
+                            <script>hljs.highlightAll();</script>
+                            <pre>
+                                <code class="language-c++">
+#include&#60;vector&#62; 
+#include "(path)/nu.h" 
+
+/*DEFINING OUR FUNCTION*/ 
+double loglike(std::vector&#60;double&#62; params){ 
+    double logL = 0; 
+    double mean[3] = {50,1,20}; 
+    double dev[3] = {1,1,20};     
+    for(int i = 0; i&#60;3; i++){ 
+        logL += (params[i]-mean[i])*(params[i]-mean[i])/(dev[i]*dev[i]); 
+    }; 
+    logL += -0.5*(params[0]-mean[0])*(params[1]-mean[1])/(dev[0]*dev[1]); 
+    logL += -0.5*(params[2]-mean[2])*(params[1]-mean[1])/(dev[2]*dev[1]); 
+
+    return -0.5*logL; 
+};
+
+int main(){ 
+    /*NU_MCMC RUNNING TESTS*/ 
+    srand(42); 
+    int nwalkers = 250; 
+    int ndim = 3; 
+    std::vector&#60; 
+    std::vector&#60;
+    double&#62; &#62; 
+    init_pos; 
+
+    /*INITIAL GUESS*/
+    for(int k = 0; k &#60; nwalkers; k++){ 
+        double p1 = double(rand()% 200+500)/10; 
+        double p2 = double(rand()% 100+1)/10; 
+        double p3 = double(rand()% 200+1)/10; 
+        std::vector&#60;double&#62; pos{p1,p2,p3}; 
+        init_pos.push_back(pos); 
+    } 
+    char file_name[256] = "guess.csv"; 
+
+    nu::Mcmc my_sample(nwalkers, ndim, init_pos); 
+    my_sample.run(loglike, 0); 
+    /*If you want to save a state */ 
+    my_sample.save_state(file_name); 
+}
+                                </code>
+                            </pre>
+                                    <h3 class="mb-0">Running</h3>
                             <div class="subheading mb-3">...</div>
                             <p>...</p>
                         </div>
