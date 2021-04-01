@@ -34,6 +34,7 @@
                     <li class="nav-item"><a class="nav-link js-scroll-trigger" href="index.html">Home</a></li>
                     <hr>
                     <li class="nav-item"><a class="nav-link js-scroll-trigger" href="#gravitacao">Gravitação</a></li>
+                    <li class="nav-item"><a class="nav-link js-scroll-trigger" href="#equilibrio">Equilíbrio e Elasticidade</a></li>
                 </ul>
             </div>
         </nav>
@@ -60,11 +61,17 @@
                     <h2 class="mb-5">Gravitação</h2>
                     <div class="d-flex flex-column flex-md-row justify-content-between mb-5">
                         <div class="flex-grow-1">
-                            <h3 class="mb-0">Exercícios e soluções</h3>
-                            <p> Aula Exploratória 1: <a href=assets/pdf/F228_1S2021_Aula-Expl1-Solution.pdf>soluções</a>; <a href=assets/pdf/F228_1S2021_Aula-Expl1-Solution-Manha.pdf>anotações (manhã)</a>;
-                                 <a href=assets/pdf/F228_1S2021_Aula-Expl1-Solution-Noite.pdf>anotações (noite)</a>.</p>
+                            <h3 class="mb-0">Exercícios e soluções: aula 1</h3>
+                            <br/>
+                            <ul>
+                                <li><p> Aula Exploratória 1: <a href=https://drive.google.com/drive/folders/12pBC7-tKJ9WhpUEw_nRDocBsxfns4EXY?usp=sharing>problemas e soluções</a>.</p></li>
+                                <li><p> Aula Exploratória 2: <a href=https://drive.google.com/drive/folders/1IXyD5yCZszmE_PZjk2V6oEJNsISTOVCy?usp=sharing>problemas e soluções</a>.</p></li>
+                            </ul>
+                            <br/><br/>
                             <h3 class="mb-0">Códigos em python</h3>
-                            <p>O código em python usado na aula para resolver parte do exercício 1, pode ser encontrado no <a href=https://replit.com/@MarianoEC>replit</a>. Segue o mesmo código abaixo
+                            <br/>
+                            <h4 class="mb-0">Desenhando um gráfico em python:</h4>
+                            <p>O código em python usado na aula para resolver parte do exercício 1, você pode rodar o código no <a href=https://replit.com/@MarianoEC>replit</a>. Nesse código graficamos a força em função da massa \(m\). Segue o código abaixo
                              </p>
                             <pre>
                                 <code class="language-python">
@@ -96,11 +103,109 @@ plt.savefig("output.pdf")
 #Mostrar figura 
 plt.show()
                                 </code>
+                            </pre>\
+                        </br>
+                            <h4 class="mb-0">Simulando três corpos em órbita circular:</h4>
+                            <p>No código que pode ser encontrado no <a href=https://replit.com/@MarianoEC>replit</a>, usamos MRUV e a lei da gravitação para simular a órbita de três estrelas com a massa do sol, posicionadas como um triângulo equilátero.</p>
+                            <pre>
+                                <code class="language-python">
+#IMPORTANDO PACOTES 
+import numpy as np 
+import matplotlib matplotlib.use("Agg") 
+import matplotlib.pyplot as plt from matplotlib.animation 
+import FFMpegWriter 
+#DEFINIR METADADOS DO FILME 
+metadata = dict(title='Movie Test', artist='Matplotlib', comment='Movie support!') 
+writer = FFMpegWriter(fps=15, metadata=metadata) 
+#CRIAR FIGURE 
+fig = plt.figure() dt = 1.154e+5 
+#DEFININDO O QUE &#201; UMA ESTRELA 
+class Star(): 
+    def __init__(self, pos_init, vel_init, mass): 
+        self.pos = np.array(pos_init) 
+        self.vel = np.array(vel_init) self.m = mass 
+
+#FOR&#199;AS ENTRE ESTRELAS 
+def F_grav(star1, star2): 
+    r_vec = star1.pos-star2.pos 
+    r=np.linalg.norm(r_vec) 
+    G=6.67e-11 r_hat = r_vec/r 
+    return G*star1.m*star2.m/r**2*r_hat 
+
+#FAZENDO O TEMPO PASSAR 
+def star_update(star, force): 
+    ac = force/star.m 
+    star.pos = star.pos+star.vel*dt+ac*dt**2/2 
+    star.vel = star.vel+ac*dt 
+    return 0 
+
+#DEFININDO AS ESTRELAS 
+G = 6.67e-11 
+d = 1e12 m_sol=2e32 #kilo-grama 
+v = np.sqrt(G*m_sol/(d)) 
+cos60 = np.cos(1.0472) 
+sin60 = np.sin(1.0472) 
+cos30 = np.cos(0.523599) 
+sin30 = np.sin(0.523599) 
+pos1 = [0,0,0] #metros 
+pos2 = [d,0,0] #metros 
+pos3 = [d*cos60,d*sin60,0] #metros 
+
+vel1 = [-v*sin30,+v*cos30,0] #m/s 
+vel2 = [-v*cos60,-v*sin60,0] #m/s 
+vel3 = [v,0,0] #m/s 
+#CRIANDO AS ESTRELAS 
+star1 = Star(pos1, vel1, m_sol) 
+star2 = Star(pos2, vel2, m_sol) 
+star3 = Star(pos3, vel3, m_sol) 
+#CRIAR FILME 
+with writer.saving(fig, "tri_orbita.mp4", 200): 
+    for i in range(200): 
+    #DEFININDO OS LIMITES DA FIGURA 
+    plt.xlim(-2e12, 2e12) 
+    plt.ylim(-2e12, 2e12) 
+    plt.xlabel("dist&#226;ncia (m)") 
+    plt.ylabel("dist&#226;ncia (m)") 
+    #CRIAR PLOT 
+    l1, = plt.plot([], [], 'k-o', markersize=7) 
+    l2, = plt.plot([], [], 'k-o', markersize=7) 
+    l3, = plt.plot([], [], 'k-o', markersize=7) 
+    #DESENHAR ESTRELAS 
+    l1.set_data(star1.pos[0], star1.pos[1]) 
+    l2.set_data(star2.pos[0], star2.pos[1]) 
+    l3.set_data(star3.pos[0], star3.pos[1]) 
+    #DESENHAR VELOCIDADES 
+    v1 = plt.arrow(star1.pos[0], star1.pos[1], star1.vel[0]*dt*10, 
+                    star1.vel[1]*dt*10, width=d/30, head_width=d/10, color="b") 
+    v2 = plt.arrow(star2.pos[0], star2.pos[1], star2.vel[0]*dt*10, 
+                    star2.vel[1]*dt*10, width=d/30, head_width=d/10, color="b") 
+    v3 = plt.arrow(star3.pos[0], star3.pos[1], star3.vel[0]*dt*10, 
+                    star3.vel[1]*dt*10, width=d/30, head_width=d/10, color="b") 
+    #SALVAR FRAME 
+    writer.grab_frame() 
+    plt.cla() 
+    #CALCULAR FOR&#199;AS 
+    force_in_1 = F_grav(star2,star1)+F_grav(star3,star1) 
+    force_in_2 = F_grav(star1,star2)+F_grav(star3,star2) 
+    force_in_3 = F_grav(star1,star3)+F_grav(star2,star3) 
+    #ANDAR NO TEMPO 
+    star_update(star1, force_in_1) 
+    star_update(star2, force_in_2) 
+    star_update(star3, force_in_3)
+                                </code>
                             </pre>
-                        </div>
+                            <p>Como resultado obtivemos o seguinte vídeo:</p>
+                            <video style="display:block; margin: 0 auto;" width="480" height="360" controls>
+                                <source src="assets/video/three-body-orbit.mp4" />
+                            </video>
+                                </div>
                     </div>
                 </div>
-
+            </section>
+            <section class="resume-section" id="equilibrio">
+                <div class="resume-section-content">
+                    <h2 class="mb-5">Equilíbrio e Elasticidade</h2>
+                </div>
             </section>
             <hr class="m-0" />
             <hr class="m-0" />
