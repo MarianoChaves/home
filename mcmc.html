@@ -5,7 +5,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
         <meta name="description" content="MCMC in C++" />
         <meta name="author" content="Mariano Chaves" />
-        <title>MCMC | C++</title>
+        <title>nuMCMC | C++</title>
         <link rel="icon" type="image/x-icon" href="assets/img/favicon.ico" />
         <!-- Font Awesome icons (free version)-->
         <script src="https://use.fontawesome.com/releases/v5.15.1/js/all.js" crossorigin="anonymous"></script>
@@ -53,7 +53,7 @@
                         Affine Invariant Markov chain Monte Carlo (MCMC) Ensemble sampler
                         <a href="mailto:mchaves@ifi.unicamp.br">mchaves@ifi.unicamp.br</a>
                     </div>
-                    <p class="lead mb-5">On this page, I exemplify the use of the MCMC using the <a href=https://github.com/MarianoChaves/MCMC>package</a> I create using C++. I will try to do that by explaining the method and the package togheter. This package is based on the <a href=https://emcee.readthedocs.io/en/stable/ >emcee</a>, written in python.</p>
+                    <p class="lead mb-5">On this page, I exemplify the use of the nuMCMC using the <a href=https://github.com/MarianoChaves/MCMC>package</a> I create using C++. I will try to do that by explaining the method and the package togheter. This package is based on the <a href=https://emcee.readthedocs.io/en/stable/ >emcee</a>, written in python.</p>
                     <div class="social-icons">
                         <a class="social-icon" href="https://github.com/MarianoChaves/MCMC"><i class="fab fa-github"></i></a>
                         <a class="social-icon" href="https://msp.org/camcos/2010/5-1/p04.xhtml"><i class="fas fa-scroll"></i></a>
@@ -69,7 +69,7 @@
                     <div class="d-flex flex-column flex-md-row justify-content-between mb-5">
                         <div class="flex-grow-1">
                             <h3 class="mb-0">Compiling and usage</h3>
-                            <p>In order to use the MCMC, you should compile the program using the <b>make</b> command in the gnu terminal. 
+                            <p>In order to use the nuMCMC, you should compile the program using the <b>make</b> command in the gnu terminal. 
                                 Once you have compiled the program, you are able to use it in any program. </p>
                             <p>To user the MCMC sampling in another program you should use the flag <b>-lnu</b>. Inside the program you should refer to the location of the file using <i>#include "<b>(the path goes here)</b>/nu.h"</i>. </p>
                             <h3 class="mb-0">Understanding the MCMC</h3>
@@ -119,7 +119,7 @@ my_sample.save_state(file_name); /*SAVE THE PRESENT STATE OF THE ENSEMBLE*/
 ...
                                 </code>
                             </pre>
-                            For the last code, if we assume \(250\) walkers we the results that are scattered on Fig. 1, and has can you see the points are scatterd uniformly around the chosen region.
+                            For the last code, if we assume \(250\) walkers we the results that are scattered on Fig. 1, and has can you see the points are scattered uniformly around the chosen region.
                             <figure style="text-align: center;">
                                 <img src="assets/img/example_0.png" alt="Trulli" style="width:50%">
                                 <figcaption>Fig.1 - Scattered initial guess.</figcaption>
@@ -135,7 +135,7 @@ my_sample.save_chain_walker(file_sample_name,header);
 ...                                        
                                         </code>
                                     </pre>
-                                    The save_chain_walker method saves the history of the walkers as a csv file whih the last column is the walker identifier given by an integer going from 1 to the number of walkers. In fig 2. we show the result of the output.
+                                    The "save_chain_walker" method saves the history of the walkers as a CSV file which the last column is the walker identifier given by an integer going from 1 to the number of walkers. In fig 2. we show the result of the output.
                                     <figure style="text-align: center;">
                                         <img src="assets/img/example_1.png" alt="Trulli" style="width:50%">
                                         <figcaption>Fig.2 - Scattered history of the walkers.</figcaption>
@@ -150,7 +150,51 @@ my_sample.save_chain_walker(file_sample_name,header);
             <section class="resume-section" id="convergence">
                 <div class="resume-section-content">
                     <h2 class="mb-5">Convergence</h2>
-                    <div class="subheading mb-3">The code</div>
+                    <div class="subheading mb-3">Convergence time series</div>
+                    <div >A way to check the convergence of the walkers, is to plot an history of the walkers in each parameter of interest. The convergence happens when the walkers stabilize their walks in a given neighbourhood. In order to do that you can do a first run on the history and latter use their stabilized configuration as initial configuration for a next run. The time series of the history for the walkers can be seen below:</div>
+                    </br>
+                    <figure style="text-align: center;">
+                        <img src="assets/img/example_2.png" alt="Trulli" style="width:50%">
+                        <figcaption>Fig.3 - Scattered history of the walkers as a time series for each of the three parameters.</figcaption>
+                    </figure>
+                    The important parts of the code used to generate this figure can be seen bellow:
+                    <pre>
+                        <code class="language-c++">
+... 
+nu::Mcmc my_sample(nwalkers, ndim, init_pos); 
+my_sample.run(loglike, bournout); 
+... 
+char file_sample_name[256] = "samples.csv"; 
+char header[256] = "x,y,z,walker\n"; 
+my_sample.save_chain_walker(file_sample_name,header); 
+...
+                        </code>
+                    </pre>
+                    </br>
+                    <div>The last line of the code "save_chain_walker", saves the history of the walkers, so you can plot the figure we show before.</div>
+                    </br>
+                    <div class="subheading mb-3">The real probability distribution</div>
+                    <div>Since you have the convergence of the walkers in a configuration, you can run the walkers over the distribution to get samplings. If you do that, you get the following distribution:</div>
+                    </br>
+                    <figure style="text-align: center;">
+                        <img src="assets/img/example_3.png" alt="Trulli" style="width:50%">
+                        <figcaption>Fig.4 - The sampling distribution for all the parameters.</figcaption>
+                    </figure>
+                    We used the following code to generate the data for this figure:
+                    <pre>
+                        <code class="language-c++">
+...
+nu::Mcmc my_sample(nwalkers, ndim, init_pos); 
+my_sample.run(loglike, bournout); 
+...
+my_sample.reset(); 
+my_sample.run(loglike, nsteps);
+... 
+my_sample.save_chain_walker(file_sample_name,header);
+...
+                        </code>
+                    </pre>
+                    <div>The diference in the last code is that we use the "reset" method. The reset method erases all the history of the walkers. So, we lose all the history of the walkers until reach convergence. Given that we can run again and get some sampling points. </div>
                 </div>
             </section>
             <hr class="m-0" />
@@ -158,9 +202,21 @@ my_sample.save_chain_walker(file_sample_name,header);
             <section class="resume-section" id="save-state">
                 <div class="resume-section-content">
                     <h2 class="mb-5">Save and Load</h2>
-                    <p>Under construction</p>
-                    <p class="mb-0">...</p>
+                    <p>In the nuMCMC it is also possible to save and load states. If the convergence takes a long time, you can save your present configuration state in a file and load it in a later usage. The code below exemplifies how can it be done.</p>
+                    <pre>
+                        <code class="language-c++">
+...
+/*If you want to load a state */ 
+nu::Mcmc my_sample(nwalkers, ndim, file_name); 
+...
+my_sample.run(loglike, nsteps); 
+/*If you want to save a state */ 
+my_sample.save_state(file_name);
+...
+                        </code>
+                    </pre>
                 </div>
+
             </section>
             <hr class="m-0" />
         </div>
