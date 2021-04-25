@@ -125,11 +125,12 @@ my_sample.save_state(file_name); /*SAVE THE PRESENT STATE OF THE ENSEMBLE*/
                                 <figcaption>Fig.1 - Scattered initial guess.</figcaption>
                               </figure>
                                     <h3 class="mb-0">Running</h3>
-                                    In order to get more points, we need to use the <i>run</i> method using more steps, for the fig. 2 we use 50 steps. We also emphasise that the function that should be passed to the method <i>run</i>, is \(-\frac{1}{2}\log(p) \). 
+                                    In order to get more points, we need to use the <i>run</i> (the <i>run_parallel for parallelized running</i>) method using more steps, for the fig. 2 we use 50 steps. We also emphasise that the function that should be passed to the method <i>run</i>, is \(-\frac{1}{2}\log(p) \). 
                                     <pre>
                                         <code class="language-c++">
 ...
-my_sample.run(loglike, nsteps); 
+my_sample.run(loglike, nsteps);  /* The serial run */
+my_sample.run_parallel(loglike, nsteps, num_of_ threads); /* The parallelized run */
 char header[256] = "x,y,z,walker\n"; 
 my_sample.save_chain_walker(file_sample_name,header);
 ...                                        
